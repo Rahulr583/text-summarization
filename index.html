@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>AI Text Summarizer</title>
+
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+  <div class="container">
+    <img
+      class="header-image"
+      src="https://cdn-icons-png.flaticon.com/512/3135/3135715.png"
+      alt="Summarizer Image"
+    />
+
+    <h1>Text Summarizer</h1>
+
+    <textarea
+      id="inputText"
+      placeholder="Paste your paragraph here..."
+    ></textarea>
+
+    <button onclick="summarizeText()">Generate Summary</button>
+
+    <div class="summary-box">
+      <h3>Summary:</h3>
+      <p id="summary">Your summary will appear here...</p>
+    </div>
+  </div>
+
+  <script>
+  function summarizeText() {
+    let text = document.getElementById("inputText").value;
+
+    if (text.trim() === "") {
+      document.getElementById("summary").innerText =
+        "Please enter some text.";
+      return;
+    }
+    let sentences = text.match(/[^.!?]+[.!?]+/g);
+
+    if (!sentences) {
+      document.getElementById("summary").innerText = text;
+      return;
+    }
+    let words = text
+      .toLowerCase()
+      .replace(/[^\w\s]/g, "")
+      .split(" ");
+
+    let stopWords = [
+      "the", "is", "in", "and", "to", "a", "of",
+      "for", "on", "with", "as", "by", "an", "at",
+      "this", "that", "it"
+    ];
+
+    let freq = {};
+
+    words.forEach(word => {
+      if (!stopWords.includes(word) && word !== "") {
+        freq[word] = (freq[word] || 0) + 1;
+      }
+    });
+
+    let sentenceScores = sentences.map(sentence => {
+      let score = 0;
+
+      let sentenceWords = sentence
+        .toLowerCase()
+        .replace(/[^\w\s]/g, "")
+        .split(" ");
+
+      sentenceWords.forEach(word => {
+        if (freq[word]) {
+          score += freq[word];
+        }
+      });
+
+      return {
+        sentence: sentence,
+        score: score
+      };
+    });
+    sentenceScores.sort((a, b) => b.score - a.score);
+    let summary = sentenceScores
+      .slice(0, 2)
+      .map(item => item.sentence)
+      .join(" ");
+
+    document.getElementById("summary").innerText = summary;
+  }
+</script>
+
+</body>
+</html>
+
+
